@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>等々力三和会 予定連絡テンプレート</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      padding: 20px 14px 40px;
+      background: #f2f6fa;
+      color: #203047;
+      font-family: system-ui, sans-serif;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    main {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    h1 {
+      font-size: 25px;
+      line-height: 1.4;
+      margin: 8px 0 12px;
+    }
+    .intro {
+      margin-bottom: 24px;
+    }
+    section {
+      background: white;
+      padding: 20px;
+      margin-bottom: 22px;
+      border-radius: 14px;
+      box-shadow: 0 2px 9px #00000012;
+    }
+    h2 {
+      font-size: 22px;
+      margin: 0 0 12px;
+      color: #17436d;
+    }
+    pre {
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+      font-family: inherit;
+      font-size: 18px;
+      line-height: 1.8;
+      padding: 16px;
+      background: #f5f7fa;
+      border: 1px solid #dbe3ed;
+      border-radius: 9px;
+    }
+    button {
+      display: block;
+      width: 100%;
+      min-height: 58px;
+      padding: 12px;
+      border: 0;
+      border-radius: 10px;
+      background: #1766b1;
+      color: white;
+      font: inherit;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    button:focus-visible {
+      outline: 3px solid #e38a00;
+      outline-offset: 3px;
+    }
+    .status {
+      min-height: 28px;
+      font-size: 16px;
+      margin: 8px 0 0;
+    }
+    footer {
+      font-size: 15px;
+      color: #526174;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+<main>
+  <h1>等々力三和会<br>予定連絡テンプレート</h1>
+  <p class="intro">
+    使用するテンプレートをコピーし、
+    LINEグループに貼り付けてください。
+    日付と予定名を入力し、不要な項目は削除できます。
+  </p>
+
+  <section>
+    <h2>予定登録</h2>
+    <pre id="register">【予定登録】
+日付：YYYY/MM/DD
+予定：
+開始：
+終了：
+場所：
+備考：</pre>
+    <button type="button"
+      onclick="copyTemplate('register', 'registerStatus')">
+      予定登録をコピー
+    </button>
+    <p class="status" id="registerStatus"
+       role="status" aria-live="polite"></p>
+  </section>
+
+  <section>
+    <h2>予定中止</h2>
+    <pre id="cancel">【予定中止】
+日付：YYYY/MM/DD
+予定：
+理由：</pre>
+    <button type="button"
+      onclick="copyTemplate('cancel', 'cancelStatus')">
+      予定中止をコピー
+    </button>
+    <p class="status" id="cancelStatus"
+       role="status" aria-live="polite"></p>
+  </section>
+
+  <footer>
+    コピー後、このページを閉じてLINEに戻り、
+    貼り付け・編集して送信してください。
+  </footer>
+</main>
+
+<script>
+async function copyTemplate(templateId, statusId) {
+  const text = document.getElementById(templateId).textContent;
+  const status = document.getElementById(statusId);
+
+  try {
+    await navigator.clipboard.writeText(text.trim());
+    status.textContent = 'コピーしました。LINEに貼り付けてください。';
+  } catch (error) {
+    status.textContent =
+      'コピーできませんでした。テンプレートの文字を選択してコピーしてください。';
+  }
+}
+</script>
+</body>
+</html>
