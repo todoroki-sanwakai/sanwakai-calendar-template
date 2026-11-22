@@ -114,7 +114,7 @@
   -webkit-appearance: none;
   appearance: none;
   }
-  
+
 </style>
 </head>
 <body>
@@ -127,22 +127,24 @@
     日付を選択し、LINEに貼り付けてから他の項目を入力してください。
   </p>
 
-  <section>
-    <h2>予定登録</h2>
-    
-      <label class="date-label" for="registerDate">予定の日付</label>
-      <button type="button" class="date-button"
-              onclick="openDatePicker('register')">
-        📅 日付を選択する
-      </button>
-      <div class="date-picker-wrap" id="registerDateWrap" hidden>
-        <input type="date" id="registerDate"
-              onchange="dateSelected('register')"
-              oninput="dateSelected('register')">
-      </div>
-      <p class="selected-date" id="registerSelectedDate">
-        選択した日付：未選択
-      </p>
+ 
+<section>
+  <h2>予定登録</h2>
+
+  <label class="date-label" for="registerDate">予定の日付</label>
+  <button type="button" class="date-button"
+          onclick="openDatePicker('register')">
+    📅 日付を選択する
+  </button>
+  <div class="date-picker-wrap" id="registerDateWrap" hidden>
+    <input type="date" id="registerDate"
+           onchange="dateSelected('register')"
+           oninput="dateSelected('register')">
+  </div>
+  <p class="selected-date" id="registerSelectedDate">
+    選択した日付：未選択
+  </p>
+
 
     <pre id="register">【予定登録】
 日付：YYYY/MM/DD
