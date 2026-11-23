@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>等々力三和会 予定連絡テンプレート（共通カレンダー試験版）</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:20px 14px 40px;background:#f2f6fa;color:#203047;font-family:system-ui,sans-serif;font-size:18px;line-height:1.6}main{max-width:680px;margin:auto}h1{font-size:25px;line-height:1.4;margin:8px 0 12px}.intro{margin-bottom:24px}section{background:#fff;padding:20px;margin-bottom:22px;border-radius:14px;box-shadow:0 2px 9px #00000012}h2{font-size:22px;margin:0 0 12px;color:#17436d}.date-label{display:block;font-weight:bold;margin-bottom:6px}button{font:inherit;cursor:pointer;border-radius:10px;min-height:44px}button:focus-visible{outline:3px solid #e38a00;outline-offset:2px}.primary{display:block;width:100%;min-height:58px;padding:12px;border:0;background:#1766b1;color:white;font-weight:bold}.calendar{margin-top:10px;padding:12px;border:1px solid #b7c8da;border-radius:12px;background:#fff}.calendar[hidden]{display:none}.cal-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:10px}.cal-head strong{text-align:center}.cal-nav{border:1px solid #a5b8cd;background:#fff;color:#17436d;padding:5px 12px;font-weight:bold}.cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}.weekday{text-align:center;font-size:14px;font-weight:bold;color:#526174;padding:4px 0}.day{min-width:0;min-height:44px;border:1px solid #d6e0eb;background:#f7fafd;color:#203047;padding:2px 0}.day[aria-pressed="true"]{background:#1766b1;color:#fff;font-weight:bold;border-color:#1766b1}.blank{min-height:44px}.cal-actions{display:flex;gap:8px;margin-top:12px}.secondary{flex:1;border:1px solid #9aafc5;background:white;color:#17436d;padding:8px}.selected-date{margin:10px 0 14px}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-family:inherit;font-size:18px;line-height:1.8;padding:16px;background:#f5f7fa;border:1px solid #dbe3ed;border-radius:9px}.status{min-height:28px;font-size:16px;margin:8px 0 0}footer{font-size:15px;color:#526174;text-align:center}@media(max-width:370px){section{padding:14px}.calendar{padding:8px}.cal-grid{gap:2px}.day{font-size:16px}}
+</style>
+</head>
+<body>
+<main>
+<h1>等々力三和会<br>予定連絡テンプレート</h1>
+<p class="intro">日付を選択し、LINEに貼り付けてから他の項目を入力してください。</p>
+<section>
+<h2>予定登録</h2>
+<span class="date-label">予定の日付</span>
+<button type="button" class="primary" id="registerOpen" aria-expanded="false" aria-controls="registerCalendar">📅 日付を選択する</button>
+<div class="calendar" id="registerCalendar" hidden></div>
+<p class="selected-date" id="registerSelectedDate">選択した日付：未選択</p>
+<pre id="register">【予定登録】
+日付：YYYY/MM/DD
+予定：
+開始：
+終了：
+場所：
+備考：</pre>
+<button type="button" class="primary" id="registerCopy">予定登録をコピー</button>
+<p class="status" id="registerStatus" role="status" aria-live="polite"></p>
+</section>
+<section>
+<h2>予定中止</h2>
+<span class="date-label">予定の日付</span>
+<button type="button" class="primary" id="cancelOpen" aria-expanded="false" aria-controls="cancelCalendar">📅 日付を選択する</button>
+<div class="calendar" id="cancelCalendar" hidden></div>
+<p class="selected-date" id="cancelSelectedDate">選択した日付：未選択</p>
+<pre id="cancel">【予定中止】
+日付：YYYY/MM/DD
+予定：
+理由：</pre>
+<button type="button" class="primary" id="cancelCopy">予定中止をコピー</button>
+<p class="status" id="cancelStatus" role="status" aria-live="polite"></p>
+</section>
+<footer>コピー後、このページを閉じてLINEに戻り、貼り付け・編集して送信してください。</footer>
+</main>
+<script>
+'use strict';
+const weekdays=['日','月','火','水','木','金','土'];
+const states={register:{selected:null,year:0,month:0},cancel:{selected:null,year:0,month:0}};
+const pad=n=>String(n).padStart(2,'0');
+function formatted(date){return date?`${date.year}/${pad(date.month+1)}/${pad(date.day)}（${weekdays[new Date(date.year,date.month,date.day).getDay()]}）`:null;}
+function update(id){
+ const s=states[id],value=formatted(s.selected),dateText=value||'YYYY/MM/DD';
+ document.getElementById(id+'SelectedDate').textContent='選択した日付：'+(value||'未選択');
+ document.getElementById(id).textContent=id==='register'?`【予定登録】\n日付：${dateText}\n予定：\n開始：\n終了：\n場所：\n備考：`:`【予定中止】\n日付：${dateText}\n予定：\n理由：`;
+ document.getElementById(id+'Status').textContent='';
+}
+function setOpen(id,open){const cal=document.getElementById(id+'Calendar');cal.hidden=!open;document.getElementById(id+'Open').setAttribute('aria-expanded',String(open));if(open)render(id);}
+function changeMonth(id,offset){const s=states[id];const date=new Date(s.year,s.month+offset,1);s.year=date.getFullYear();s.month=date.getMonth();render(id);}
+function render(id){
+ const s=states[id],cal=document.getElementById(id+'Calendar');
+ cal.replaceChildren();
+ const head=document.createElement('div');head.className='cal-head';
+ const prev=document.createElement('button');prev.type='button';prev.className='cal-nav';prev.textContent='◀';prev.setAttribute('aria-label','前の月');prev.addEventListener('click',()=>changeMonth(id,-1));
+ const title=document.createElement('strong');title.textContent=`${s.year}年${s.month+1}月`;
+ const next=document.createElement('button');next.type='button';next.className='cal-nav';next.textContent='▶';next.setAttribute('aria-label','次の月');next.addEventListener('click',()=>changeMonth(id,1));
+ head.append(prev,title,next);cal.append(head);
+ const grid=document.createElement('div');grid.className='cal-grid';
+ weekdays.forEach(w=>{const label=document.createElement('span');label.className='weekday';label.textContent=w;grid.append(label);});
+ const first=new Date(s.year,s.month,1).getDay();const count=new Date(s.year,s.month+1,0).getDate();
+ for(let i=0;i<first;i++){const blank=document.createElement('span');blank.className='blank';grid.append(blank);}
+ for(let day=1;day<=count;day++){
+  const b=document.createElement('button');b.type='button';b.className='day';b.textContent=String(day);
+  b.setAttribute('aria-label',`${s.year}年${s.month+1}月${day}日`);
+  b.setAttribute('aria-pressed',String(!!s.selected&&s.selected.year===s.year&&s.selected.month===s.month&&s.selected.day===day));
+  b.addEventListener('click',()=>{s.selected={year:s.year,month:s.month,day};update(id);setOpen(id,false);document.getElementById(id+'Open').focus();});grid.append(b);
+ }
+ cal.append(grid);
+ const actions=document.createElement('div');actions.className='cal-actions';
+ const clear=document.createElement('button');clear.type='button';clear.className='secondary';clear.textContent='日付をクリア';clear.addEventListener('click',()=>{s.selected=null;update(id);setOpen(id,false);document.getElementById(id+'Open').focus();});
+ const close=document.createElement('button');close.type='button';close.className='secondary';close.textContent='閉じる';close.addEventListener('click',()=>{setOpen(id,false);document.getElementById(id+'Open').focus();});
+ actions.append(clear,close);cal.append(actions);
+}
+async function copy(id){
+ const status=document.getElementById(id+'Status');if(!states[id].selected){status.textContent='先に日付を選択してください。';return;}
+ const value=document.getElementById(id).textContent.trim();
+ try{await navigator.clipboard.writeText(value);status.textContent='コピーしました。LINEに貼り付けてください。';}
+ catch(error){status.textContent='コピーできませんでした。テンプレートの文字を選択してコピーしてください。';}
+}
+for(const id of ['register','cancel']){
+ const now=new Date(),s=states[id];s.year=now.getFullYear();s.month=now.getMonth();
+ document.getElementById(id+'Open').addEventListener('click',()=>setOpen(id,document.getElementById(id+'Calendar').hidden));
+ document.getElementById(id+'Copy').addEventListener('click',()=>copy(id));
+}
+</script>
+</body>
+</html>
